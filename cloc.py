@@ -98,6 +98,9 @@ def clear_counts():
 
 def summarize():
     unsafe_ratio = num_unsafe/code
-    fn_ratio = unsafe_fns/total_fns
+    try:
+        fn_ratio = unsafe_fns/total_fns
+    except ZeroDivisionError:
+        fn_ratio = 0
     return [files, blank, comment, code, num_unsafe, unsafe_ratio, total_fns, unsafe_fns, fn_ratio]
 
