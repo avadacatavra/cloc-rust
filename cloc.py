@@ -9,6 +9,7 @@ import os
 
 #naive solution, analyze file line by line
 
+#omg this is awful FIXME
 num_unsafe = 0
 unsafe_fns = 0
 total_fns = 0
@@ -73,7 +74,27 @@ def cloc_repo():
         for f in files:
             if f.endswith('.rs'):
                 cloc_file(subdir + os.sep + f)
-    return summarize()
+    results = summarize()
+    clear_counts()
+    return results
+
+def clear_counts():
+    global num_unsafe
+    global unsafe_fns
+    global total_fns
+    global blank
+    global comment
+    global files
+    global code
+
+    num_unsafe = 0
+    unsafe_fns = 0
+    total_fns = 0
+    blank = 0
+    comment = 0
+    files = 0
+    code = 0
+
 
 def summarize():
     unsafe_ratio = num_unsafe/code
