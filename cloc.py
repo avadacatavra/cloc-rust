@@ -67,7 +67,7 @@ def cloc_file(filename):
                 flag = True
                 brackets.append('{')
                 unsafe_fns += 1
-        elif 'unsafe' in line and not 'deny(unsafe_code)' in line:
+        elif 'unsafe' in line and not '(unsafe_code)' in line:
             flag = True
             brackets.append('{')
         if 'panic!' in line:
@@ -107,11 +107,11 @@ def clear_counts():
 
 def summarize():
     try:
-        unsafe_ratio = num_unsafe/code
+        unsafe_ratio = (num_unsafe/code)*100
     except ZeroDivisionError:
         unsafe_ratio = 0
     try:
-        fn_ratio = unsafe_fns/total_fns
+        fn_ratio = (unsafe_fns/total_fns)*100
     except ZeroDivisionError:
         fn_ratio = 0
     return [files, blank, comment, code, num_unsafe, unsafe_ratio, total_fns, unsafe_fns, fn_ratio, panics]
