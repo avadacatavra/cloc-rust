@@ -67,7 +67,7 @@ def main():
 
 
     shutil.rmtree(working_dir)   #clean up
-    headers = ["files", "blank", "comment", "code", "unsafe", "%unsafe", "fns", "unsafe fns", "%unsafe fns"]
+    headers = ["files", "blank", "comment", "code", "unsafe", "%unsafe", "fns", "unsafe fns", "%unsafe fns", "panics"]
     print(tabulate(output,headers=headers))
 	
 if __name__ == "__main__":

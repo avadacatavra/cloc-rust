@@ -17,6 +17,7 @@ blank = 0
 comment = 0
 files = 0
 code = 0
+panics = 0
 
 #run over a directory
 # skip files under test anything
@@ -30,6 +31,7 @@ def cloc_file(filename):
     global comment
     global files
     global code
+    global panics
 
     files += 1
     
@@ -43,9 +45,12 @@ def cloc_file(filename):
         # skip comment lines
         if re.match(regex, line):
             comment += 1
+            continue
         # skip blank lines
         if len(line.strip()) == 0:
             blank += 1
+            continue
+
         code += 1
         if flag == True:
             if '{' in line:         #track brackets so you don't terminate count early
@@ -62,9 +67,11 @@ def cloc_file(filename):
                 flag = True
                 brackets.append('{')
                 unsafe_fns += 1
-        elif 'unsafe' in line:
+        elif 'unsafe' in line and not 'deny(unsafe_code)' in line:
             flag = True
             brackets.append('{')
+        if 'panic!' in line:
+            panics += 1
 
 #runs over cwd
 def cloc_repo():
@@ -86,6 +93,7 @@ def clear_counts():
     global comment
     global files
     global code
+    global panics
 
     num_unsafe = 0
     unsafe_fns = 0
@@ -94,13 +102,17 @@ def clear_counts():
     comment = 0
     files = 0
     code = 0
+    panics = 0
 
 
 def summarize():
-    unsafe_ratio = num_unsafe/code
+    try:
+        unsafe_ratio = num_unsafe/code
+    except ZeroDivisionError:
+        unsafe_ratio = 0
     try:
         fn_ratio = unsafe_fns/total_fns
     except ZeroDivisionError:
         fn_ratio = 0
-    return [files, blank, comment, code, num_unsafe, unsafe_ratio, total_fns, unsafe_fns, fn_ratio]
+    return [files, blank, comment, code, num_unsafe, unsafe_ratio, total_fns, unsafe_fns, fn_ratio, panics]
 
