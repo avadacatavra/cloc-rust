@@ -75,13 +75,13 @@ def cloc_file(filename):
                 flag = False
             else:
                 num_unsafe += 1
-        if 'impl' in line:
-            if 'unsafe' in line:
-                num_unsafe += 1
-            #FIXME
-        if 'fn' in line:
+        if re.match('\s*unsafe impl.*for.*', line):
+            num_unsafe += 1
+            #TODO is this always a one liner?
+        if re.match('\s*fn\s+[a-zA-Z_]*', line):
             total_fns += 1
-            if 'unsafe' in line:
+            #FIXME pretty hacky...
+            if 'unsafe ' in line:
                 flag = True
                 brackets.append('{')
                 unsafe_fns += 1
@@ -99,7 +99,9 @@ def cloc_repo():
         if 'test' in subdir:
             continue
         for f in files:
-            if f.endswith('.rs'):
+            if f == "diagnostics.rs":
+               continue 
+            elif f.endswith('.rs'):
                 cloc_file(subdir + os.sep + f)
     results = summarize()
     clear_counts()
