@@ -70,20 +70,19 @@ def main():
 
     output = []
 
-    with open('crawl.json') as data_file:
-        data = json.load(data_file)
+    #with open('crawl.json') as data_file:
+    #    data = json.load(data_file)
 
-    #pprint(data)
-    items = data['items']
+    #items = data['items']
 
     working_dir = 'cloc_tmp'
     if not os.path.exists(working_dir):
         os.makedirs(working_dir)
 
-    for x in items:
-        repo_out = run_cloc(x['name'], x['clone_url'], working_dir)
-        repo_out.insert(0,x['name'])
-        output.append(repo_out)
+    #for x in items:
+    #    repo_out = run_cloc(x['name'], x['clone_url'], working_dir)
+    #    repo_out.insert(0,x['name'])
+    #    output.append(repo_out)
     # servo isn't listed with language:rust
     if args.servo:
         output += cloc_servo(working_dir)

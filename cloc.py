@@ -37,7 +37,9 @@ def cloc_file(filename):
     files += 1
     
     regex = re.compile('^//|^\s/\*|^\s\*|^\s\*/')
+    unsafe_regex = re.compile('.*unsafe\s*\{')
     flag = False
+    literal_flag = False    #handles ```...```
     brackets = []   #TODO probably don't actually need a stack
 
 
@@ -45,6 +47,17 @@ def cloc_file(filename):
     
         # skip comment lines
         if re.match(regex, line):
+            comment += 1
+            continue
+        if "```" in line:
+            if literal_flag == False:
+                comment += 1
+                literal_flag = True
+            else:   #end comment block
+                comment += 1
+                literal_flag = False
+            continue
+        if literal_flag == True:
             comment += 1
             continue
         # skip blank lines
@@ -62,13 +75,19 @@ def cloc_file(filename):
                 flag = False
             else:
                 num_unsafe += 1
+        if 'impl' in line:
+            if 'unsafe' in line:
+                num_unsafe += 1
+            #FIXME
         if 'fn' in line:
             total_fns += 1
             if 'unsafe' in line:
                 flag = True
                 brackets.append('{')
                 unsafe_fns += 1
-        elif 'unsafe' in line and not '(unsafe_code)' in line:
+        elif re.match("\s*unsafe\s*\{.*\}", line):   #match one liner
+            num_unsafe += 1
+        elif re.match(unsafe_regex, line):
             flag = True
             brackets.append('{')
         if 'panic!' in line:
