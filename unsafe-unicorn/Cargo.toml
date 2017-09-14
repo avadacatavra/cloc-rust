@@ -1,0 +1,6 @@
+[package]
+name = "unsafe-unicorn"
+version = "0.1.0"
+authors = ["ddh <dianehosfelt@gmail.com>"]
+
+[dependencies]
