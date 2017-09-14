@@ -95,6 +95,8 @@ def cloc_file(filename):
 
 #runs over cwd
 def cloc_repo():
+    if os.getcwd() == ".git":
+       return 
     for subdir, dirs, files in os.walk(os.getcwd()):
         if 'test' in subdir:
             continue
@@ -106,6 +108,26 @@ def cloc_repo():
     results = summarize()
     clear_counts()
     return results
+
+#literally the same as cloc_repo, but you pass the directory
+# can't remember why i wrote cloc_repo the way i did so keeping it for now
+# also pass a flag to indicate if filewise granularity is desired
+def cloc_dir(crate_dir, verbose):
+    # shouldn't be necessary anymore
+    #if os.getcwd() == ".git":
+    #   return 
+    for subdir, dirs, files in os.walk(crate_dir):
+        if 'test' in subdir:
+            continue
+        for f in files:
+            if f == "diagnostics.rs":
+               continue 
+            elif f.endswith('.rs'):
+                cloc_file(subdir + os.sep + f)
+    results = summarize()
+    clear_counts()
+    return results
+
 
 def clear_counts():
     global num_unsafe
