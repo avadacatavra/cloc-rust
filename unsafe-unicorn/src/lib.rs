@@ -40,7 +40,7 @@ lazy_static!{
 ///     File: show unsafe info file by file
 ///     Crate: (default) show info 'crate' by 'crate'
 ///     TopLevel: combine all subdirectory stats into one toplevel output
-#[derive(Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum ClocVerbosity {
     File,
     Crate,
@@ -63,12 +63,24 @@ impl Cloc {
         }
     }
 
+    pub fn stats(&self) -> &Vec<ClocStats> {
+        &self.stats
+    }
+
     pub fn set_verbose(&mut self, level: ClocVerbosity) {
         self.verbose = level;
     }
 
     pub fn add_stats(&mut self, stats: ClocStats) {
         self.stats.push(stats);
+    }
+
+    pub fn clear_stats(&mut self) {
+        self.stats.clear()
+    }
+
+    pub fn len(&self) -> usize {
+        self.stats.len()
     }
 
     pub fn analyze_dir(&mut self, dir: &str) -> Result<(), io::Error> {
@@ -119,6 +131,29 @@ impl Cloc {
         }
         Ok(())
     }
+
+    pub fn sort_stats(&mut self) {
+        self.stats.sort_by(|a, b| {
+            b.unsafe_ratio().partial_cmp(&a.unsafe_ratio()).unwrap()
+        });
+    }
+
+    // returns a Cloc object to make output better
+    pub fn top_unsafe(&mut self, num: usize) -> Cloc {
+        let mut c = Cloc::new();
+        c.set_verbose(self.verbose);
+
+        self.sort_stats();
+        for s in self.stats.iter() {
+            if c.len() == num {
+                break;
+            }
+            if s.num_unsafe > 0 {
+                c.add_stats(s.clone());
+            }
+        }
+        c
+    }
 }
 
 impl fmt::Display for Cloc {
@@ -144,10 +179,10 @@ impl fmt::Display for Cloc {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ClocStats {
     name: PathBuf,
-    num_unsafe: usize,
+    pub num_unsafe: usize,
     unsafe_fns: usize,
     total_fns: usize,
     blank: usize,
@@ -332,6 +367,14 @@ impl ClocStats {
             }
         }
 
+    }
+
+    /// Compute ratio of unsafe code to total code
+    pub fn unsafe_ratio(&self) -> f64 {
+        match self.code {
+            0 => 0.0,
+            _ => self.num_unsafe as f64 / self.code as f64
+        }
     }
 }
 
